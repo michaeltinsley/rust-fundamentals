@@ -26,6 +26,22 @@ fn read_file(input: &str) {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_read_file() {
+        let file_path = "test.txt";
+        let content = "Hello, world!\nThis is a test file.";
+        std::fs::write(file_path, content).unwrap();
+
+        read_file(file_path);
+
+        std::fs::remove_file(file_path).unwrap();
+    }
+}
+
 use clap::Parser;
 
 /// Search for a pattern in a file and display the lines that contain it.
