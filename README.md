@@ -25,36 +25,36 @@ Key files
 
 Quick start (local)
 - To build the entire workspace:
-```/dev/null/commands.md#L1-4
+```bash
 cargo build --workspace
 ```
 
 - To run a single exercise (from workspace root):
-```/dev/null/commands.md#L1-3
+```bash
 cargo run -p <package-name>
 # Example:
 # cargo run -p 01_hello_world
 ```
 
 - To test the entire workspace:
-```/dev/null/commands.md#L1-3
+```bash
 cargo test --workspace
 ```
 
 - To check formatting and lint locally:
-```/dev/null/commands.md#L1-6
+```bash
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
 ```
 
 Creating a new exercise
 1. Create a new binary crate inside `exercises/`:
-```/dev/null/commands.md#L1-3
+```bash
 cargo new --bin exercises/03_my_exercise
 ```
 
 2. Implement logic in `src/lib.rs` (recommended) and use a thin `src/main.rs` to call into it. Example structure:
-```/dev/null/example_exercise.md#L1-10
+```markdown
 exercises/03_my_exercise/
 ├─ Cargo.toml
 └─ src/
@@ -63,7 +63,7 @@ exercises/03_my_exercise/
 ```
 
 Minimal `main.rs` example
-```/dev/null/exercises/01_hello_world/src/main.rs#L1-10
+```rust
 fn main() {
     println!("Hello, rust-fundamentals!");
 }
