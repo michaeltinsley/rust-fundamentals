@@ -1,0 +1,50 @@
+name: Rust CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+# Ensures that only one workflow runs per branch at a time
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-and-test:
+    name: Test & Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          # We need clippy and rustfmt specifically
+          components: clippy, rustfmt
+
+      - name: Rust Cache
+        # Smart caching for Rust dependencies to speed up builds
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check formatting
+        # "--all" formats all packages in the workspace
+        # "-- --check" fails the CI if code is not formatted
+        run: cargo fmt --all -- --check
+
+      - name: Run Clippy
+        # "--workspace" tests all packages
+        # "--all-targets" checks tests, benches, and examples
+        # "--all-features" checks all feature flags
+        # "-D warnings" fails the build on any clippy warning
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - name: Run Tests
+        # Runs all tests in the workspace
+        run: cargo test --workspace
