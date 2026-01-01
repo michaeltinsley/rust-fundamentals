@@ -1,10 +1,9 @@
 #[derive(Debug)]
 pub struct Sizes {
-    bytes: u64,
-    kilobytes: u64,
-    megabytes: u64,
-    gigabytes: u64,
-    terabytes: u64,
+    bytes: String,
+    kilobytes: String,
+    megabytes: String,
+    gigabytes: String,
 }
 
 impl Sizes {
@@ -17,16 +16,14 @@ impl Sizes {
             "kb" => number * 1024,
             "mb" => number * 1024 * 1024,
             "gb" => number * 1024 * 1024 * 1024,
-            "tb" => number * 1024 * 1024 * 1024 * 1024,
             _ => 0,
         };
 
         Sizes {
-            bytes,
-            kilobytes: bytes / 1024,
-            megabytes: bytes / (1024 * 1024),
-            gigabytes: bytes / (1024 * 1024 * 1024),
-            terabytes: bytes / (1024 * 1024 * 1024 * 1024),
+            bytes: format!("{} bytes", bytes),
+            kilobytes: format!("{} kilobytes", bytes / 1024),
+            megabytes: format!("{} megabytes", bytes / (1024 * 1024)),
+            gigabytes: format!("{} gigabytes", bytes / (1024 * 1024 * 1024)),
         }
     }
 }
