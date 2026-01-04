@@ -15,7 +15,6 @@ fn benchmark_sieve_creation(c: &mut Criterion) {
     });
 
     // Benchmark finding primes up to 1,000,000
-    // This is the "real" stress test
     group.bench_function("limit_1m", |b| {
         b.iter(|| SieveOfEratosthenes::new(black_box(1_000_000)))
     });
