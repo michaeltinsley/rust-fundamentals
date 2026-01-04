@@ -2,7 +2,9 @@
 name = "sieve-of-eratosthenes"
 version = "0.1.0"
 edition = "2024"
-description = "A Rust implementation of the Sieve of Eratosthenes algorithm"
+description = "A standard implementation of the Sieve of Eratosthenes"
+license = "Unlicense"
+repository = "https://github.com/michaeltinsley/rust-fundamentals"
 
 [dependencies]
 

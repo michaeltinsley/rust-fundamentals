@@ -1,5 +1,6 @@
-use criterion::{Criterion, black_box, criterion_group, criterion_main};
+use criterion::{Criterion, criterion_group, criterion_main};
 use sieve_of_eratosthenes::SieveOfEratosthenes;
+use std::hint::black_box;
 
 fn benchmark_sieve_creation(c: &mut Criterion) {
     let mut group = c.benchmark_group("Sieve Creation");

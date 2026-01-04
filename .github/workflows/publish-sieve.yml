@@ -1,0 +1,60 @@
+name: Publish Sieve of Eratosthenes Crate
+
+on:
+  release:
+    types: [published]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  ci:
+    name: Run CI Checks
+    # Only run checks if this is actually a sieve release tag
+    if: endsWith(github.event.release.tag_name, '-soe')
+    uses: ./.github/workflows/rust-ci.yml
+
+  publish-sieve:
+    name: Publish Sieve of Eratosthenes
+    runs-on: ubuntu-latest
+    needs: ci
+    # 1. The Critical Check: Only run if the tag ends with "-soe"
+    # Examples that WILL run: "v0.1.0-soe", "v1.0.0-soe"
+    # Examples that WON'T run: "v0.1.0", "v0.1.0-reader"
+    if: endsWith(github.event.release.tag_name, '-soe')
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Verify Version Matches Tag
+        shell: bash
+        run: |
+          # Optional safety check: Ensure the tag version matches Cargo.toml
+          # Extract version from tag (e.g., v0.1.0-soe -> 0.1.0)
+          TAG_VERSION=${GITHUB_REF_NAME#v} # Remove 'v'
+          TAG_VERSION=${TAG_VERSION%-soe}  # Remove '-soe'
+
+          # Get version from Cargo.toml
+          CARGO_VERSION=$(grep '^version =' exercises/sieve-of-eratosthenes/Cargo.toml | cut -d '"' -f 2)
+
+          if [ "$TAG_VERSION" != "$CARGO_VERSION" ]; then
+            echo "Error: Tag version ($TAG_VERSION) does not match Cargo.toml version ($CARGO_VERSION)"
+            exit 1
+          fi
+          echo "Versions match: $TAG_VERSION"
+
+      - name: Publish to Crates.io
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish -p sieve-of-eratosthenes
