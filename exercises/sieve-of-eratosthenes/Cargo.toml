@@ -1,0 +1,14 @@
+[package]
+name = "sieve-of-eratosthenes"
+version = "0.1.0"
+edition = "2024"
+description = "A Rust implementation of the Sieve of Eratosthenes algorithm"
+
+[dependencies]
+
+[dev-dependencies]
+criterion = { version = "0.7", features = ["html_reports"] }
+
+[[bench]]
+name = "sieve-of-eratosthenes-benchmark"
+harness = false
