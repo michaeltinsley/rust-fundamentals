@@ -23,3 +23,25 @@ Add this to your `Cargo.toml`:
 ```toml
 [dependencies]
 sieve-of-eratosthenes = "0.1.0"
+```
+
+## Usage
+
+```rust
+use sieve_of_eratosthenes::SieveOfEratosthenes;
+
+fn main() {
+    // Find all primes up to 100
+    let sieve = SieveOfEratosthenes::new(100);
+
+    // Check individual numbers (O(1) lookup)
+    assert!(sieve.is_prime(2));
+    assert!(sieve.is_prime(97));
+    assert!(!sieve.is_prime(100)); // 100 is composite
+
+    // Iterate over primes
+    for prime in sieve.iter() {
+        println!("{}", prime);
+    }
+}
+```
