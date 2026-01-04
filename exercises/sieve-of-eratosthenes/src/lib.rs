@@ -11,9 +11,7 @@
 /// ```
 pub struct SieveOfEratosthenes {
     limit: usize,
-    // Using a simple Vec<bool> for readability.
-    // For extreme memory efficiency, we would use a BitVec crate later.
-    primes: Vec<u8>,
+    words: Vec<usize>,
 }
 
 impl SieveOfEratosthenes {
@@ -30,33 +28,31 @@ impl SieveOfEratosthenes {
     /// assert_eq!(s.iter().count(), 4);
     /// ```
     pub fn new(limit: usize) -> Self {
-        let num_bytes = (limit + 8) / 8;
-        let mut primes = vec![0xFF; num_bytes];
+        // Dynamic constant: 64 on your Mac, 32 on older systems
+        let bits = usize::BITS as usize;
 
-        // Define a standard function instead of a closure.
-        // This avoids holding a permanent mutable borrow on 'primes'.
-        fn mark_composite(primes: &mut [u8], n: usize) {
-            let byte_index = n / 8;
-            let bit_index = n % 8;
-            primes[byte_index] &= !(1 << bit_index);
+        let num_words = limit / bits + 1;
+
+        // usize::MAX is all 1s (whether that's 32 or 64 ones)
+        let mut words = vec![usize::MAX; num_words];
+
+        fn mark_composite(words: &mut [usize], n: usize) {
+            let bits = usize::BITS as usize;
+            let word_index = n / bits;
+            let bit_index = n % bits;
+            words[word_index] &= !(1 << bit_index);
         }
 
-        // 1. Unconditionally mark 0 as composite (it's never prime).
-        mark_composite(&mut primes, 0);
-
-        // 2. Mark 1 as composite (only if it exists within our limit).
+        mark_composite(&mut words, 0);
         if limit >= 1 {
-            mark_composite(&mut primes, 1);
+            mark_composite(&mut words, 1);
         }
 
         let sqrt_limit = (limit as f64).sqrt() as usize;
 
         for num in 2..=sqrt_limit {
-            // 1. Immutable Borrow: We read from primes here.
-            // This is safe because 'mark_composite' isn't holding onto primes anymore.
-            let byte_index = num / 8;
-            let bit_index = num % 8;
-            let is_prime = (primes[byte_index] & (1 << bit_index)) != 0;
+            let bits = usize::BITS as usize;
+            let is_prime = (words[num / bits] & (1 << (num % bits))) != 0;
 
             if is_prime {
                 let start_index = num.saturating_mul(num);
@@ -65,14 +61,13 @@ impl SieveOfEratosthenes {
                 }
 
                 for multiple in (start_index..=limit).step_by(num) {
-                    // 2. Mutable Borrow: We write to primes here.
-                    // The borrow starts and ends strictly within this function call.
-                    mark_composite(&mut primes, multiple);
+                    // We can inline the unsafe optimization here too if we want
+                    mark_composite(&mut words, multiple);
                 }
             }
         }
 
-        SieveOfEratosthenes { limit, primes }
+        SieveOfEratosthenes { limit, words }
     }
 
     /// Check if a number is prime in O(1) time.
@@ -94,11 +89,8 @@ impl SieveOfEratosthenes {
         if n > self.limit {
             return false;
         }
-        let byte_index = n / 8;
-        let bit_index = n % 8;
-
-        // Check if the specific bit is set to 1
-        (self.primes[byte_index] & (1 << bit_index)) != 0
+        let bits = usize::BITS as usize;
+        (self.words[n / bits] & (1 << (n % bits))) != 0
     }
 
     /// Return an iterator over the found primes.
@@ -130,6 +122,7 @@ mod tests {
         assert!(sieve.is_prime(5));
         assert!(!sieve.is_prime(4));
         assert!(!sieve.is_prime(1));
+        assert!(!sieve.is_prime(0));
 
         let primes: Vec<usize> = sieve.iter().collect();
         assert_eq!(primes, vec![2, 3, 5, 7, 11, 13, 17, 19, 23, 29]);
