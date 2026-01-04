@@ -7,7 +7,6 @@ on:
     branches: ["main"]
   workflow_call:
 
-# Ensures that only one workflow runs per branch at a time
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -17,8 +16,16 @@ env:
 
 jobs:
   build-and-test:
-    name: Test & Lint
-    runs-on: ubuntu-latest
+    # 1. Use the matrix value in the job name for clarity
+    name: Test on ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner }}
+
+    # 2. Define the matrix: GitHub will run this job twice in parallel
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+        # ubuntu-latest     = Standard x86_64 (AMD64)
+        # ubuntu-24.04-arm  = Native ARM64 (AArch64)
 
     steps:
       - name: Checkout repository
@@ -27,25 +34,21 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          # We need clippy and rustfmt specifically
           components: clippy, rustfmt
 
       - name: Rust Cache
-        # Smart caching for Rust dependencies to speed up builds
         uses: Swatinem/rust-cache@v2
+        with:
+          # Cache keys need to differ by runner/arch to avoid corruption
+          key: ${{ matrix.runner }}
 
       - name: Check formatting
-        # "--all" formats all packages in the workspace
-        # "-- --check" fails the CI if code is not formatted
+        # We only need to check formatting once (on amd64) to save resources
+        if: matrix.runner == 'ubuntu-latest'
         run: cargo fmt --all -- --check
 
       - name: Run Clippy
-        # "--workspace" tests all packages
-        # "--all-targets" checks tests, benches, and examples
-        # "--all-features" checks all feature flags
-        # "-D warnings" fails the build on any clippy warning
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
       - name: Run Tests
-        # Runs all tests in the workspace
         run: cargo test --workspace
