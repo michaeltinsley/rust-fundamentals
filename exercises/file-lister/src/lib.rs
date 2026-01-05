@@ -36,13 +36,13 @@ fn list_recursive(
 
             // Print formatted output directly
             if json {
-                // Simple JSON Lines format (NDJSON)
-                println!(
-                    r#"{{"name": "{}", "path": "{}", "is_dir": {}}}"#,
-                    name,
-                    child_path.display(),
-                    is_dir
-                );
+                // Use the `json!` macro from `serde_json` for safe serialization.
+                let output = serde_json::json!({
+                    "name": &name,
+                    "path": child_path.display().to_string(),
+                    "is_dir": is_dir
+                });
+                println!("{}", output);
             } else {
                 let indent = "  ".repeat(depth);
                 let icon = if is_dir { "📁" } else { "📄" };
