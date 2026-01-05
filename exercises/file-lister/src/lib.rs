@@ -9,6 +9,10 @@ use std::path::Path;
 /// list_dir(path, false, false, false);
 /// ```
 pub fn list_dir(path: &Path, json: bool, recursive: bool, hidden: bool) {
+    if !path.is_dir() {
+        eprintln!("Error: '{}' is not a directory.", path.display());
+        return;
+    }
     // Start recursion with depth 0
     if let Err(e) = list_recursive(path, json, recursive, hidden, 0) {
         eprintln!("Error reading directory: {}", e);
