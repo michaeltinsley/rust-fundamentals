@@ -5,10 +5,8 @@ use std::path::Path;
 /// ```rust
 /// use file_lister::list_dir;
 ///
-/// fn main() {
-///     let path = Path::new(".");
-///     list_dir(path, false, false, false);
-/// }
+/// let path = Path::new(".");
+/// list_dir(path, false, false, false);
 /// ```
 pub fn list_dir(path: &Path, json: bool, recursive: bool, hidden: bool) {
     // Start recursion with depth 0
