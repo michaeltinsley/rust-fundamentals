@@ -4,6 +4,7 @@ use std::path::Path;
 /// Simple directory lister with recursion and basic formatting.
 /// ```rust
 /// use file_lister::list_dir;
+/// use std::path::Path;
 ///
 /// let path = Path::new(".");
 /// list_dir(path, false, false, false);
