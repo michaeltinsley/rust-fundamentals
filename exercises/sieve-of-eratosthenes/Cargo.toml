@@ -9,7 +9,7 @@ repository = "https://github.com/michaeltinsley/rust-fundamentals"
 [dependencies]
 
 [dev-dependencies]
-criterion = { version = "0.7", features = ["html_reports"] }
+criterion = { version = "0.8", features = ["html_reports"] }
 
 [[bench]]
 name = "sieve-of-eratosthenes-benchmark"
